@@ -1,0 +1,104 @@
+[
+  {
+    "id": 1001,
+    "name": "workbench",
+    "displayName": "Workbench",
+    "type": "tool",
+    "inventorySize": 1,
+    "description": "Let's you build new things.",
+    "traderValue": 5,
+    "effectiveness": 3,
+    "craftable": true,
+    "craftingCost": {
+      "2002": 25
+    }
+  },
+  {
+    "id": 1002,
+    "name": "woodaxe",
+    "displayName": "Wood Axe",
+    "type": "tool",
+    "inventorySize": 1,
+    "description": "Does about as good as you'd expect.",
+    "traderValue": 5,
+    "effectiveness": 3,
+    "craftable": true,
+    "craftingCost": {
+      "2002": 5
+    }
+  },
+  {
+    "id": 2001,
+    "name": "wood",
+    "displayName": "Wood",
+    "type": "earth-resource",
+    "inventorySize": 1,
+    "description": "A plank of wood that magically fell from hitting a tree.",
+    "traderValue": 5,
+    "craftable": true,
+    "craftingCost": null
+  },
+  {
+    "id": 2002,
+    "name": "hardwood",
+    "displayName": "Hardwood",
+    "type": "earth-resource",
+    "inventorySize": 3,
+    "description": "A strong, compressed piece of wood.",
+    "traderValue": 25,
+    "craftable": true,
+    "craftingCost": {
+      "2001": 15
+    }
+  },
+  {
+    "id": 4001,
+    "name": "basic-worker",
+    "type": "worker",
+    "displayName": "Lowly Worker",
+    "inventorySize": 1,
+    "description": "A worker that will gather wood for you - albeit slowly.",
+    "traderValue": 5,
+    "craftable": true,
+    "craftingCost": {
+      "2002": 20
+    }
+  },
+  {
+    "id": 9001,
+    "name": "shed",
+    "type": "storage",
+    "upgradeModifier": 250,
+    "displayName": "Small Shed",
+    "inventorySize": 1,
+    "description": "Increases wood storage slightly.",
+    "traderValue": 100,
+    "craftable": true,
+    "craftingCost": {
+      "2002": 250
+    },
+    "storage": [
+      {
+        "id": 2001,
+        "amount": 250
+      },
+      {
+        "id": 2002,
+        "amount": 50
+      }
+    ]
+  },
+  {
+    "id": 9002,
+    "name": "woodshop",
+    "type": "machine",
+    "displayName": "Wood Shop",
+    "inventorySize": 1,
+    "description": "Automatically convert Wood to Hardwood.",
+    "traderValue": 100,
+    "craftable": true,
+    "craftingCost": {
+      "2002": 10
+    }
+  }
+]
