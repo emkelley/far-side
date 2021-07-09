@@ -1,121 +1,131 @@
 <template>
-  <div id="game">
-    <div class="columns is-fluid game-container">
-      <div class="column is-3 inventory">
-        <br />
-        <h1
-          class="title is-4 has-text-centered"
-          style="color: ghostwhite; font-family: 'Turret Road', cursive"
-        >
-          FAR SIDE <span class="latin">α</span>
-        </h1>
-        <p class="small has-text-centered tick" style="color: white">
-          Game Tickrate: {{ gameTickrate }}ms
-        </p>
-        <hr />
-        <div v-if="inventory.length > 0" class="content">
-          <div
-            v-for="resource in inventory"
-            :key="resource.id"
-            style="margin-bottom: 0.75rem"
-            :class="{ 'is-core-tool': isCoreTool(resource.id) }"
+  <main>
+    <vuescroll>
+      <div id="game" class="grid">
+        <div class="inventory">
+          <br />
+          <h1
+            class="title is-4 has-text-centered"
+            style="color: ghostwhite; font-family: 'Turret Road', cursive"
           >
-            <div class="level">
-              <div class="level-left">
-                <strong class="level-item">{{ resource.displayName }}</strong>
-              </div>
-              <div class="level-right">
-                <span v-if="resource.id === 2001" class="current-output">
-                  +{{ activeWorkers.amount }}/tick
-                </span>
-                <animated-counter
-                  class="level-item"
-                  :number="resource.amount"
-                  :cap="250"
-                ></animated-counter>
+            FAR SIDE <span class="latin">α</span>
+          </h1>
+          <p class="small has-text-centered tick" style="color: white">
+            Game Tickrate: {{ gameTickrate }}ms
+          </p>
+          <hr />
+          <div v-if="inventory.length > 0" class="content">
+            <div
+              v-for="resource in inventory"
+              :key="resource.id"
+              style="margin-bottom: 0.75rem"
+              :class="{ 'is-core-tool': isCoreTool(resource.id) }"
+            >
+              <div class="level">
+                <div class="level-left">
+                  <strong class="level-item">{{ resource.displayName }}</strong>
+                </div>
+                <div class="level-right">
+                  <span v-if="resource.id === 2001" class="current-output">
+                    +{{ activeWorkers.amount }}/tick
+                  </span>
+                  <animated-counter
+                    class="level-item"
+                    :number="resource.amount"
+                    :cap="250"
+                  ></animated-counter>
+                </div>
               </div>
             </div>
           </div>
+          <InventoryGrid />
         </div>
-      </div>
-      <div class="column right">
-        <div class="container">
-          <br />
-          <section class="resources">
-            <h1 class="title is-5">Gather Resources</h1>
-            <div v-if="earthResources" class="buttons">
-              <button
-                v-for="resource in earthResources"
-                :key="resource.id"
-                class="button is-small is-primary"
-                @click="craft(resource)"
-                :disabled="haveEnoughFor(resource.id)"
-              >
-                {{ resource.displayName }}
-              </button>
-            </div>
-          </section>
-          <hr />
-          <section class="tools">
-            <h1 class="title is-5">Build Tools</h1>
-            <div v-if="tools" class="buttons">
-              <button
-                v-if="!hasWorkbench"
-                class="button is-small is-primary"
-                @click="craft(1001)"
-                :disabled="haveEnoughFor(1001)"
-              >
-                Build a Workbench
-              </button>
-              <button
-                v-else
-                v-for="resource in tools"
-                :key="resource.id"
-                class="button is-small is-primary"
-                @click="craft(resource)"
-                :disabled="hasWorkbench && haveEnoughFor(resource.id)"
-              >
-                {{ resource.displayName }}
-              </button>
-            </div>
-          </section>
-          <hr />
-          <section class="workers">
-            <h1 class="title is-5">Hire Workers</h1>
-            <div class="buttons">
-              <button
-                v-for="worker in workers"
-                :key="worker.id"
-                class="button is-small is-primary"
-                @click="craft(worker)"
-                :disabled="haveEnoughFor(worker.id)"
-              >
-                {{ worker.displayName }}
-              </button>
-            </div>
-          </section>
-          <hr />
-          <section class="logs">
-            <h1 class="title is-5">Logs</h1>
-            <div class="logs tags">
-              <div
-                class="tag is-info is-rounded"
-                v-for="(action, index) in actionLog"
-                :key="index"
-              >
-                {{ action }}
+        <div class="inventory-footer">
+          <p>
+            <span>FAR SIDE</span> a game by
+            <a href="https://emk.dev">Eric Kelley</a>
+          </p>
+        </div>
+        <div class="game-wrapper">
+          <div class="inner-wrapper">
+            <br />
+            <section class="resources">
+              <h1 class="title is-5">Gather Resources</h1>
+              <div v-if="earthResources" class="buttons">
+                <button
+                  v-for="resource in earthResources"
+                  :key="resource.id"
+                  class="button is-small is-primary"
+                  @click="craft(resource)"
+                  :disabled="haveEnoughFor(resource.id)"
+                >
+                  {{ resource.displayName }}
+                </button>
               </div>
-            </div>
-          </section>
-          <hr />
+            </section>
+            <hr />
+            <section class="tools">
+              <h1 class="title is-5">Build Tools</h1>
+              <div v-if="tools" class="buttons">
+                <button
+                  v-if="!hasWorkbench"
+                  class="button is-small is-primary"
+                  @click="craft(1001)"
+                  :disabled="haveEnoughFor(1001)"
+                >
+                  Build a Workbench
+                </button>
+                <button
+                  v-else
+                  v-for="resource in tools"
+                  :key="resource.id"
+                  class="button is-small is-primary"
+                  @click="craft(resource)"
+                  :disabled="hasWorkbench && haveEnoughFor(resource.id)"
+                >
+                  {{ resource.displayName }}
+                </button>
+              </div>
+            </section>
+            <hr />
+            <section class="workers">
+              <h1 class="title is-5">Hire Workers</h1>
+              <div class="buttons">
+                <button
+                  v-for="worker in workers"
+                  :key="worker.id"
+                  class="button is-small is-primary"
+                  @click="craft(worker)"
+                  :disabled="haveEnoughFor(worker.id)"
+                >
+                  {{ worker.displayName }}
+                </button>
+              </div>
+            </section>
+            <hr />
+            <section class="logs">
+              <h1 class="title is-5">Logs</h1>
+              <div class="wrapper">
+                <vuescroll>
+                  <p v-for="(action, index) in actionLog" :key="index">
+                    {{ action }}
+                  </p>
+                </vuescroll>
+              </div>
+            </section>
+            <hr />
+          </div>
         </div>
+        <div class="game-footer">asdf</div>
       </div>
-    </div>
-  </div>
+    </vuescroll>
+  </main>
 </template>
 
 <script>
+import vuescroll from 'vuescroll';
 import AnimatedCounter from '@/components/AnimatedNumber';
+import InventoryGrid from '@/components/InventoryGrid';
 import { gameItems } from '@/data/items';
 import { mapState } from 'vuex';
 export default {
@@ -125,7 +135,7 @@ export default {
       tick: 0,
     };
   },
-  components: { AnimatedCounter },
+  components: { AnimatedCounter, vuescroll, InventoryGrid },
   computed: {
     ...mapState(['inventory', 'workers', 'actionLog']),
     gameTickrate() {
@@ -240,33 +250,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.is-core-tool {
-  display: none;
+.grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  grid-template-rows: 1fr 40px;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
 }
-#game {
-  min-height: calc(100vh + 12px);
-  width: 100vw;
-  background: #151623;
-  overflow: none;
-  .title,
-  .subtitle {
-    color: ghostwhite;
-    font-family: 'Turret Road', cursive;
-    text-transform: uppercase;
-  }
-}
-.game-container {
-  overflow: none;
-}
-.content {
-  padding: 0rem 1rem 0rem 1.5rem;
-}
+
 .inventory {
+  grid-area: 1 / 1 / 2 / 2;
   background: #181c2e;
-  min-height: calc(100vh + 12px);
-  width: 350px !important;
   color: #d6d9de;
-  padding: 0 !important;
   .tick {
     font-family: 'IBM Plex Mono', sans-serif;
   }
@@ -302,15 +297,70 @@ export default {
     font-family: 'IBM Plex Mono', sans-serif;
   }
 }
-.right {
+.game-wrapper {
+  grid-area: 1 / 2 / 2 / 3;
   background: hsl(236, 24%, 11%);
+  padding: 0rem 1rem 1rem 1rem !important;
   hr {
     background: rgba(184, 114, 250, 0.52);
   }
 }
+.inventory-footer {
+  grid-area: 2 / 1 / 3 / 2;
+  background: #0d101b;
+  padding: 0.5rem;
+  p,
+  a {
+    color: #9288a8;
+    font-family: 'Turret Road', cursive;
+    letter-spacing: 0.1rem;
+    span {
+      color: rgba(184, 114, 250, 0.52);
+    }
+  }
+}
+.game-footer {
+  grid-area: 2 / 2 / 3 / 3;
+  background: #0d101b;
+  padding: 0.25rem;
+}
+article {
+  img {
+    color: white !important;
+  }
+}
+#game {
+  min-height: calc(100vh + 12px);
+  background: #151623;
+  overflow: none;
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+  .title,
+  .subtitle {
+    color: ghostwhite;
+    font-family: 'Turret Road', cursive;
+    text-transform: uppercase;
+  }
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+.game-container {
+  overflow: none;
+}
+.content {
+  padding: 0rem 1rem 0rem 1.5rem;
+}
+
 .logs {
   max-height: 400px;
-  overflow: scroll;
   color: rgb(184, 114, 250);
+  overflow-y: hidden;
+  .wrapper {
+    overflow-y: scroll;
+  }
+}
+.is-core-tool {
+  display: none;
 }
 </style>
