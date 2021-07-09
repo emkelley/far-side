@@ -9,17 +9,17 @@ export default new Vuex.Store({
       {
         id: 2001,
         displayName: 'Wood',
-        amount: 150,
+        amount: 0,
       },
       {
         id: 2002,
         displayName: 'Hardwood',
-        amount: 100,
+        amount: 0,
       },
       {
         id: 4001,
         displayName: 'Worker',
-        amount: 15,
+        amount: 2,
       },
     ],
   },

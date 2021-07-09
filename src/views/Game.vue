@@ -7,26 +7,33 @@
           class="title is-4 has-text-centered"
           style="color: ghostwhite; font-family: 'Turret Road', cursive"
         >
-          THE FAR SIDE α
+          FAR SIDE <span class="latin">α</span>
         </h1>
         <p class="small has-text-centered tick" style="color: white">
           Game Tickrate: {{ gameTickrate }}ms
         </p>
         <hr />
-        <div class="content">
-          <div v-for="resource in inventory" :key="resource.id" class="level">
-            <div class="level-left">
-              <strong class="level-item">{{ resource.displayName }}</strong>
-            </div>
-            <div class="level-right">
-              <span v-if="resource.id === 2001" class="current-output">
-                +{{ activeWorkers.amount }}/tick
-              </span>
-              <animated-counter
-                class="level-item"
-                :number="resource.amount"
-                :cap="250"
-              ></animated-counter>
+        <div v-if="inventory.length > 0" class="content">
+          <div
+            v-for="resource in inventory"
+            :key="resource.id"
+            style="margin-bottom: 0.75rem"
+            :class="{ 'is-core-tool': isCoreTool(resource.id) }"
+          >
+            <div class="level">
+              <div class="level-left">
+                <strong class="level-item">{{ resource.displayName }}</strong>
+              </div>
+              <div class="level-right">
+                <span v-if="resource.id === 2001" class="current-output">
+                  +{{ activeWorkers.amount }}/tick
+                </span>
+                <animated-counter
+                  class="level-item"
+                  :number="resource.amount"
+                  :cap="250"
+                ></animated-counter>
+              </div>
             </div>
           </div>
         </div>
@@ -127,11 +134,23 @@ export default {
     earthResources() {
       return gameItems.filter((e) => e.type === 'earth-resource');
     },
+    coreTools() {
+      return gameItems.filter((e) => e.type === 'core-tool');
+    },
     tools() {
       return gameItems.filter((e) => e.type === 'tool');
     },
     workers() {
       return gameItems.filter((e) => e.type === 'worker');
+    },
+    machines() {
+      return gameItems.filter((e) => e.type === 'machine');
+    },
+    activeWorkers() {
+      return this.inventory.find((e) => e.id === 4001);
+    },
+    hasWorkbench() {
+      return this.inventory.find((e) => e.name === 'workbench') ? true : false;
     },
     inventoryAltFormat() {
       const mapped = this.inventory.map((item) => {
@@ -141,17 +160,20 @@ export default {
       });
       return Object.assign(...mapped);
     },
-    activeWorkers() {
-      return this.inventory.find((e) => e.id === 4001);
-    },
-    hasWorkbench() {
-      return this.inventory.find((e) => e.id === 1001) ? true : false;
-    },
   },
   mounted() {
     this.gameTick();
   },
   methods: {
+    filterGameItemsByType(type) {
+      return gameItems.filter((e) => e.type === type);
+    },
+    getGameItemByName(name) {
+      return gameItems.find((e) => e.name === name);
+    },
+    isCoreTool(id) {
+      return this.coreTools.find((t) => t.id === id) ? true : false;
+    },
     gameTick() {
       this.gametime = setInterval(() => {
         this.tick++;
@@ -218,10 +240,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.is-core-tool {
+  display: none;
+}
 #game {
   min-height: calc(100vh + 12px);
   width: 100vw;
-  background: rgba(248, 248, 255, 0.205);
+  background: #151623;
   overflow: none;
   .title,
   .subtitle {
@@ -239,17 +264,21 @@ export default {
 .inventory {
   background: #181c2e;
   min-height: calc(100vh + 12px);
-  min-width: 200px;
+  width: 350px !important;
   color: #d6d9de;
   padding: 0 !important;
   .tick {
     font-family: 'IBM Plex Mono', sans-serif;
   }
+  .latin {
+    font-family: 'IBM Plex Sans', sans-serif;
+    text-transform: none;
+  }
   hr {
     background: #f8f8ff34;
   }
   pre {
-    background: rgba(248, 248, 255, 0.205);
+    background: #151623;
     color: ghostwhite;
     font-family: 'IBM Plex Mono', sans-serif;
   }
