@@ -1,5 +1,5 @@
 <template>
-  <div id="inventory-grid" class="content">
+  <div v-if="inventory" id="inventory-grid" class="content">
     <article
       v-for="resource in inventory"
       :key="resource.id"

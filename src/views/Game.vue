@@ -14,7 +14,7 @@
             Game Tickrate: {{ gameTickrate }}ms
           </p>
           <hr />
-          <div v-if="inventory.length > 0" class="content">
+          <div v-if="inventory" class="content">
             <div
               v-for="resource in inventory"
               :key="resource.id"
@@ -26,7 +26,10 @@
                   <strong class="level-item">{{ resource.displayName }}</strong>
                 </div>
                 <div class="level-right">
-                  <span v-if="resource.id === 2001" class="current-output">
+                  <span
+                    v-if="resource.id === 2001 && activeWorkers"
+                    class="current-output"
+                  >
                     +{{ activeWorkers.amount }}/tick
                   </span>
                   <animated-counter
@@ -116,7 +119,9 @@
             <hr />
           </div>
         </div>
-        <div class="game-footer">asdf</div>
+        <div class="game-footer" style="font-family: 'IBM Plex Mono">
+          TICK: {{ tick }}
+        </div>
       </div>
     </vuescroll>
   </main>
@@ -142,54 +147,36 @@ export default {
       return process.env.VUE_APP_TICKRATE;
     },
     earthResources() {
-      return gameItems.filter((e) => e.type === 'earth-resource');
+      return this.filterGameItemsByType('earth-resource');
     },
     coreTools() {
-      return gameItems.filter((e) => e.type === 'core-tool');
+      return this.filterGameItemsByType('core-tool');
     },
     tools() {
-      return gameItems.filter((e) => e.type === 'tool');
+      return this.filterGameItemsByType('tool');
     },
     workers() {
-      return gameItems.filter((e) => e.type === 'worker');
+      return this.filterGameItemsByType('worker');
     },
     machines() {
-      return gameItems.filter((e) => e.type === 'machine');
+      return this.filterGameItemsByType('machine');
     },
     activeWorkers() {
-      return this.inventory.find((e) => e.id === 4001);
+      return this.getInvItemByID(4001) || 0;
     },
     hasWorkbench() {
-      return this.inventory.find((e) => e.name === 'workbench') ? true : false;
-    },
-    inventoryAltFormat() {
-      const mapped = this.inventory.map((item) => {
-        let obj = {};
-        obj[item.id] = item.amount;
-        return obj;
-      });
-      return Object.assign(...mapped);
+      return this.getInvItemByName('workbench') ? true : false;
     },
   },
   mounted() {
     this.gameTick();
   },
   methods: {
-    filterGameItemsByType(type) {
-      return gameItems.filter((e) => e.type === type);
-    },
-    getGameItemByName(name) {
-      return gameItems.find((e) => e.name === name);
-    },
-    isCoreTool(id) {
-      return this.coreTools.find((t) => t.id === id) ? true : false;
-    },
     gameTick() {
       this.gametime = setInterval(() => {
         this.tick++;
-        const workers = this.inventory.find((e) => e.id === 4001);
-        const wood = gameItems.find((e) => e.id === 2001);
-        const workerContribution = workers.amount * 1;
+        const wood = this.getGameItemByID(2001);
+        const workerContribution = this.totalWorkersHired();
         if (workerContribution > 0)
           this.$store.commit('purchaseItem', {
             resource: wood,
@@ -197,6 +184,14 @@ export default {
             isGameTick: true,
           });
       }, this.gameTickrate);
+    },
+    totalWorkersHired() {
+      if (this.inventory)
+        return this.inventory.reduce((acc, e) => {
+          if (e.id === 4001) return acc + e.amount;
+          else return acc;
+        }, 0);
+      else return 0;
     },
     craft(resource, amount = 1) {
       if (typeof resource === 'number') {
@@ -212,6 +207,15 @@ export default {
         });
       }
     },
+    haveEnoughFor(itemID) {
+      const { craftingCost } = this.getGameItemByID(itemID);
+      if (craftingCost === null) return false;
+      const reqItemID = Object.keys(craftingCost)[0];
+      const reqItemAmt = Object.values(craftingCost)[0];
+      const hasInInv = this.getInvItemAmountByID(Number(reqItemID));
+      if (hasInInv < reqItemAmt) return true;
+      else return false;
+    },
     hire(id) {
       this.$store.commit('updateInventory', {
         purchaseItem: id,
@@ -222,22 +226,30 @@ export default {
         },
       });
     },
-    haveEnoughFor(itemID) {
-      const { craftingCost } = gameItems.find((item) => item.id === itemID);
-      if (craftingCost === null) return false;
-
-      let requiredResourceAmount, haveResourceAmount;
-
-      for (const [key, value] of Object.entries(craftingCost)) {
-        requiredResourceAmount = value;
-        const { amount } = this.inventory.find(
-          (item) => item.id === Number(key)
-        );
-        haveResourceAmount = amount;
-      }
-
-      if (requiredResourceAmount > haveResourceAmount) return true;
-      else return false;
+    isCoreTool(id) {
+      return this.coreTools.find((t) => t.id === id) ? true : false;
+    },
+    filterGameItemsByType(type) {
+      return gameItems.filter((e) => e.type === type);
+    },
+    getGameItemByName(name) {
+      return gameItems.find((e) => e.name === name);
+    },
+    getGameItemByID(id) {
+      return gameItems.find((e) => e.id === id);
+    },
+    filterInvItemsByType(type) {
+      return this.inventory.filter((e) => e.type === type);
+    },
+    getInvItemByName(name) {
+      return this.inventory.find((e) => e.name === name);
+    },
+    getInvItemByID(id) {
+      return this.inventory.find((e) => e.id === id);
+    },
+    getInvItemAmountByID(id) {
+      let count = this.getInvItemByID(id);
+      return count ? count.amount : 0;
     },
     cancelGameTime() {
       clearInterval(this.gametime);
