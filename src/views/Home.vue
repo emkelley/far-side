@@ -1,33 +1,44 @@
 <template>
-  <div id="home" class="columns is-vcentered is-centered">
-    <div class="column is-half">
-      <p class="title is-1">FAR SIDE</p>
-      <p class="subtitle">
-        An idle clicker game with a story of dubious quality
-      </p>
-      <br />
-      <center>
-        <router-link to="/game" class="button is-large is-primary">
-          Play
-        </router-link>
-      </center>
-    </div>
+  <div id="home">
+    <nav class="navbar is-primary">
+      <div class="navbar-brand">
+        <h1
+          class="navbar-item"
+          style="
+            color: ghostwhite;
+            font-family: 'Turret Road', cursive;
+            font-size: 1.5rem;
+          "
+        >
+          FAR SIDE <span class="latin" style="margin-left: 0.5rem">α</span>
+        </h1>
+      </div>
+      <div class="navbar-menu">
+        <div class="navbar-end">
+          <a class="navbar-item"> About </a>
+          <a class="navbar-item"> Help </a>
+          <a class="navbar-item"> Item Glossary </a>
+        </div>
+      </div>
+    </nav>
+    <Game />
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+import Game from '@/views/Game.vue';
 
 export default {
   name: 'Home',
-  components: {},
+  components: { Game },
 };
 </script>
 
 <style lang="scss" scoped>
 #home {
   min-height: 100vh;
-  background: #181c2e;
+  background: #dce2ff;
   padding: 0;
   margin: 0;
 }
@@ -37,6 +48,6 @@ export default {
   color: ghostwhite;
 }
 .hero {
-  background: #181c2e;
+  height: 200px;
 }
 </style>

@@ -5,7 +5,13 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     actionLog: ['Game started'],
-    inventory: [],
+    inventory: [
+      {
+        id: 4001,
+        displayName: 'Worker',
+        amount: 2,
+      },
+    ],
   },
   mutations: {
     purchaseUpgrade(state, n) {

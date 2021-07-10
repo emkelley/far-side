@@ -3,20 +3,10 @@
     <vuescroll>
       <div id="game" class="grid">
         <div class="inventory">
-          <br />
-          <h1
-            class="title is-4 has-text-centered"
-            style="color: ghostwhite; font-family: 'Turret Road', cursive"
-          >
-            FAR SIDE <span class="latin">α</span>
-          </h1>
-          <p class="small has-text-centered tick" style="color: white">
-            Game Tickrate: {{ gameTickrate }}ms
-          </p>
-          <hr />
-          <div v-if="inventory" class="content">
+          <div v-if="inventory" class="">
+            <h1 class="title has-text-centered is-5">Inventory</h1>
             <div
-              v-for="resource in inventory"
+              v-for="resource in invSortedByID"
               :key="resource.id"
               style="margin-bottom: 0.75rem"
               :class="{ 'is-core-tool': isCoreTool(resource.id) }"
@@ -30,7 +20,7 @@
                     v-if="resource.id === 2001 && activeWorkers"
                     class="current-output"
                   >
-                    +{{ activeWorkers.amount }}/tick
+                    +{{ activeWorkers }}/tick
                   </span>
                   <animated-counter
                     class="level-item"
@@ -41,7 +31,6 @@
               </div>
             </div>
           </div>
-          <InventoryGrid />
         </div>
         <div class="inventory-footer">
           <p>
@@ -119,8 +108,11 @@
             <hr />
           </div>
         </div>
-        <div class="game-footer" style="font-family: 'IBM Plex Mono">
-          TICK: {{ tick }}
+        <div
+          class="game-footer"
+          style="font-family: 'IBM Plex Mono'; color: MediumSlateBlue"
+        >
+          <p>Game Tickrate: {{ gameTickrate }}ms - Current Tick: {{ tick }}</p>
         </div>
       </div>
     </vuescroll>
@@ -130,7 +122,6 @@
 <script>
 import vuescroll from 'vuescroll';
 import AnimatedCounter from '@/components/AnimatedNumber';
-import InventoryGrid from '@/components/InventoryGrid';
 import { gameItems } from '@/data/items';
 import { mapState } from 'vuex';
 export default {
@@ -140,7 +131,7 @@ export default {
       tick: 0,
     };
   },
-  components: { AnimatedCounter, vuescroll, InventoryGrid },
+  components: { AnimatedCounter, vuescroll },
   computed: {
     ...mapState(['inventory', 'workers', 'actionLog']),
     gameTickrate() {
@@ -162,10 +153,13 @@ export default {
       return this.filterGameItemsByType('machine');
     },
     activeWorkers() {
-      return this.getInvItemByID(4001) || 0;
+      return this.getInvItemByID(4001).amount || 0;
     },
     hasWorkbench() {
       return this.getInvItemByName('workbench') ? true : false;
+    },
+    invSortedByID() {
+      return this.sortInv();
     },
   },
   mounted() {
@@ -176,7 +170,7 @@ export default {
       this.gametime = setInterval(() => {
         this.tick++;
         const wood = this.getGameItemByID(2001);
-        const workerContribution = this.totalWorkersHired();
+        const workerContribution = this.activeWorkers;
         if (workerContribution > 0)
           this.$store.commit('purchaseItem', {
             resource: wood,
@@ -185,17 +179,9 @@ export default {
           });
       }, this.gameTickrate);
     },
-    totalWorkersHired() {
-      if (this.inventory)
-        return this.inventory.reduce((acc, e) => {
-          if (e.id === 4001) return acc + e.amount;
-          else return acc;
-        }, 0);
-      else return 0;
-    },
     craft(resource, amount = 1) {
       if (typeof resource === 'number') {
-        resource = gameItems.find((e) => e.id === resource);
+        resource = this.getGameItemByID(resource);
         this.$store.commit('purchaseItem', {
           resource: resource,
           amount: amount,
@@ -228,6 +214,9 @@ export default {
     },
     isCoreTool(id) {
       return this.coreTools.find((t) => t.id === id) ? true : false;
+    },
+    sortInv() {
+      return this.inventory.sort((a, b) => a.id - b.id);
     },
     filterGameItemsByType(type) {
       return gameItems.filter((e) => e.type === type);
@@ -272,31 +261,20 @@ export default {
 
 .inventory {
   grid-area: 1 / 1 / 2 / 2;
-  background: #181c2e;
-  color: #d6d9de;
-  .tick {
-    font-family: 'IBM Plex Mono', sans-serif;
-  }
-  .latin {
-    font-family: 'IBM Plex Sans', sans-serif;
-    text-transform: none;
-  }
-  hr {
-    background: #f8f8ff34;
-  }
-  pre {
-    background: #151623;
-    color: ghostwhite;
-    font-family: 'IBM Plex Mono', sans-serif;
-  }
+  background: #151623;
+  padding: 1.5rem 0.5rem 0rem 0.5rem;
   strong {
-    color: white;
+    color: #d6d9dec2;
   }
   .current-output {
     font-size: 0.6rem;
     margin-right: 1rem;
     font-weight: 600;
-    color: rgb(184, 114, 250);
+    color: rgb(128, 114, 250);
+  }
+  .level {
+    background: #0f101a;
+    padding: 0.5rem;
   }
   .level-left {
     font-family: 'Turret Road', cursive;
@@ -307,11 +285,12 @@ export default {
   .level-right {
     text-align: right;
     font-family: 'IBM Plex Mono', sans-serif;
+    color: rgba(255, 255, 255, 0.836);
   }
 }
 .game-wrapper {
   grid-area: 1 / 2 / 2 / 3;
-  background: hsl(236, 24%, 11%);
+  background: #181c2e;
   padding: 0rem 1rem 1rem 1rem !important;
   hr {
     background: rgba(184, 114, 250, 0.52);
@@ -327,7 +306,7 @@ export default {
     font-family: 'Turret Road', cursive;
     letter-spacing: 0.1rem;
     span {
-      color: rgba(184, 114, 250, 0.52);
+      color: MediumSlateBlue;
     }
   }
 }
@@ -335,6 +314,11 @@ export default {
   grid-area: 2 / 2 / 3 / 3;
   background: #0d101b;
   padding: 0.25rem;
+  text-align: right;
+  p {
+    margin-right: 0.5rem;
+    font-family: 'IBM Plex Mono', sans-serif;
+  }
 }
 article {
   img {
@@ -342,8 +326,8 @@ article {
   }
 }
 #game {
-  min-height: calc(100vh + 12px);
-  background: #151623;
+  min-height: calc(100vh - 56px);
+  background: #181c2e;
   overflow: none;
   -ms-overflow-style: none !important; /* IE and Edge */
   scrollbar-width: none !important; /* Firefox */
