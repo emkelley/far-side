@@ -9,7 +9,7 @@
               v-for="resource in invSortedByID"
               :key="resource.id"
               style="margin-bottom: 0.75rem"
-              :class="{ 'is-core-tool': getInvItemCap(resource.id) === 1 }"
+              :class="{ 'is-hidden': getInvItemCap(resource.id) === 1 }"
             >
               <div class="level">
                 <div class="level-left">
@@ -30,13 +30,43 @@
                 </div>
               </div>
             </div>
+            <div v-if="hasWorkbench">
+              <hr />
+              <h1 class="title has-text-centered is-5">Tools</h1>
+              <div
+                v-for="tool in tools"
+                :key="tool.id"
+                style="margin-bottom: 0.75rem"
+                :class="{ 'is-hidden': !alreadyOwns(tool.id) }"
+              >
+                <div class="level">
+                  <div class="level-left">
+                    <strong class="level-item">{{ tool.displayName }}</strong>
+                  </div>
+                  <div class="level-right">
+                    <span
+                      v-if="tool.id === 2001 && activeWorkers"
+                      class="current-output"
+                    >
+                      +{{ activeWorkers }}/tick
+                    </span>
+                    <i class="fa-thin fa-check"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="inventory.length === 0" class="container is-fluid">
+              <h1 class="title has-text-centered is-7" style="opacity: 0.5">
+                gather some wood to get started
+              </h1>
+            </div>
           </div>
-          <hr />
           <div v-if="devEnvironment" id="dev-panel">
-            <h1 class="title has-text-centered is-5" style="color: red">
-              DEV GIVE ITEM
-            </h1>
+            <hr />
             <div class="dev-wrapper">
+              <h1 class="title has-text-centered is-5" style="color: red">
+                Item Spawner
+              </h1>
               <b-field>
                 <b-select
                   expanded
@@ -48,7 +78,8 @@
                     :key="item.id"
                     :value="item.id"
                   >
-                    > {{ item.displayName }}
+                    {{ item.id }} - {{ item.name }} -
+                    {{ item.displayName }}
                   </option>
                 </b-select>
               </b-field>
@@ -60,7 +91,7 @@
                 ></b-input>
               </b-field>
               <b-button @click="devAdd" type="is-primary" expanded>
-                Add items to inventory
+                Add item(s) to inventory
               </b-button>
             </div>
           </div>
@@ -93,23 +124,35 @@
               <h1 class="title is-5">Build Tools</h1>
               <div v-if="tools" class="buttons">
                 <button
-                  v-if="!hasWorkbench"
+                  v-show="!alreadyOwns(1001)"
                   class="button is-small is-primary"
                   @click="craft(1001)"
                   :disabled="haveEnoughFor(1001)"
                 >
                   Build a Workbench
                 </button>
-                <button
-                  v-else
-                  v-for="resource in tools"
-                  :key="resource.id"
-                  class="button is-small is-primary"
-                  @click="craft(resource)"
-                  :disabled="hasWorkbench && haveEnoughFor(resource.id)"
-                >
-                  {{ resource.displayName }}
-                </button>
+                <div v-show="alreadyOwns(1001)">
+                  <b-tooltip
+                    v-for="tool in tools"
+                    :key="tool.id"
+                    :label="tool.displayName"
+                    :delay="1000"
+                    :class="{ 'is-hidden': tool.displayName === 'Workbench' }"
+                    style="margin-right: 0.5rem"
+                  >
+                    <b-button
+                      type="is-primary"
+                      size="is-small"
+                      :label="tool.displayName"
+                      @click="craft(tool)"
+                      :disabled="
+                        hasWorkbench &&
+                        haveEnoughFor(tool.id) &&
+                        !alreadyOwns(tool.id)
+                      "
+                    />
+                  </b-tooltip>
+                </div>
               </div>
             </section>
             <hr />
@@ -169,7 +212,7 @@ export default {
     return {
       gametime: '',
       tick: 0,
-      devAddItemID: undefined,
+      devAddItemID: 2001,
       devAddItemAmount: 1,
       gameItems,
     };
@@ -193,6 +236,12 @@ export default {
     tools() {
       return this.filterGameItemsByType('tool');
     },
+    invTools() {
+      return this.filterInvItemsByType('tool');
+    },
+    allTools() {
+      return this.tools.concat(this.coreTools);
+    },
     workers() {
       return this.filterGameItemsByType('worker');
     },
@@ -200,10 +249,11 @@ export default {
       return this.filterGameItemsByType('machine');
     },
     activeWorkers() {
-      return this.getInvItemByID(4001).amount || 0;
+      const workerInInv = this.getInvItemByID(4001);
+      return workerInInv ? workerInInv.amount : 0;
     },
     hasWorkbench() {
-      return this.getInvItemByName('workbench') ? true : false;
+      return this.getInvItemByName('Workbench') ? true : false;
     },
     invSortedByID() {
       return this.sortInv();
@@ -216,8 +266,9 @@ export default {
     gameTick() {
       this.gametime = setInterval(() => {
         this.tick++;
-        const wood = this.getGameItemByID(2001);
         const workerContribution = this.activeWorkers;
+        const wood = this.getGameItemByID(2001);
+        if (!wood) return;
         if (workerContribution > 0)
           this.$store.commit('purchaseItem', {
             resource: wood,
@@ -271,6 +322,11 @@ export default {
         amount: amount,
       });
     },
+    alreadyOwns(id) {
+      const item = this.getInvItemByID(id);
+      if (item) return true;
+      else return false;
+    },
     getInvItemCap(id) {
       for (const key in this.player.playerCaps) {
         if (Number(key) === id) return this.player.playerCaps[key];
@@ -294,8 +350,11 @@ export default {
     filterInvItemsByType(type) {
       return this.inventory.filter((e) => e.type === type);
     },
+    getToolsInInventory() {
+      return this.inventory.filter((e) => e.type === 'tool');
+    },
     getInvItemByName(name) {
-      return this.inventory.find((e) => e.name === name);
+      return this.inventory.find((e) => e.displayName === name);
     },
     getInvItemByID(id) {
       return this.inventory.find((e) => e.id === id);
@@ -329,6 +388,9 @@ export default {
   padding: 1.5rem 0.5rem 0rem 0.5rem;
   strong {
     color: #d6d9dec2;
+  }
+  hr {
+    background: rgba(184, 114, 250, 0.32);
   }
   .current-output {
     font-size: 0.6rem;
@@ -420,7 +482,32 @@ article {
     overflow-y: scroll;
   }
 }
-.is-core-tool {
+.is-hidden {
   display: none;
+}
+#dev-panel {
+  padding: 0.5rem;
+  opacity: 0.2;
+  transition: opacity 0.5s;
+  &:hover {
+    opacity: 1;
+  }
+  .dev-wrapper {
+    background: rgba(0, 0, 0, 0.747);
+    padding: 1rem;
+    color: white;
+    border: 1px solid rgb(184, 114, 250);
+    border-radius: 6px;
+    &::selection,
+    ::-moz-selection {
+      background: rgba(184, 114, 250, 0.5);
+    }
+    option {
+      color: ghostwhite;
+      span {
+        color: rgba(184, 114, 250, 0.5) !important;
+      }
+    }
+  }
 }
 </style>

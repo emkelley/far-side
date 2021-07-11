@@ -33,10 +33,12 @@ export default new Vuex.Store({
       }
     },
     purchaseItem(state, { resource, amount = 1, isGameTick = false }) {
+      // Check inventory cap before purchase, bail if too many items
       const invItemCap = getInvItemCap(resource.id, state.player);
       const hasInInv = getInvItemAmount(resource.id, state.inventory);
       if (hasInInv && hasInInv >= invItemCap) return;
 
+      // Add to inventory
       const index = state.inventory.findIndex((r) => r.id === resource.id);
       if (index > -1) state.inventory[index].amount += Number(amount);
       else
@@ -44,6 +46,7 @@ export default new Vuex.Store({
           id: resource.id,
           displayName: resource.displayName,
           amount: Number(amount),
+          type: resource.type,
         });
 
       // Apply build cost
@@ -64,18 +67,13 @@ export default new Vuex.Store({
           id: resource.id,
           displayName: resource.displayName,
           amount: Number(amount),
+          type: resource.type,
         });
     },
   },
   state: {
     actionLog: ['Game started'],
-    inventory: [
-      {
-        id: 4001,
-        displayName: 'Worker',
-        amount: 2,
-      },
-    ],
+    inventory: [],
     player: {
       displayName: '0NEGUY',
       playerCaps: generateDefaultResourceCaps(),
