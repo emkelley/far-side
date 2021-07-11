@@ -24,12 +24,12 @@ export default {
   color: ghostwhite;
   font-family: 'Turret Road', cursive;
 }
-// * {
-//   -ms-overflow-style: none; /* for Internet Explorer, Edge */
-//   scrollbar-width: none; /* for Firefox */
-//   overflow-y: scroll;
-//   & ::-webkit-scrollbar {
-//     display: none;
-//   }
-// }
+* {
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+  scrollbar-width: none; /* for Firefox */
+  overflow-y: scroll;
+  & ::-webkit-scrollbar {
+    display: none;
+  }
+}
 </style>

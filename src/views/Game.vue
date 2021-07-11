@@ -9,7 +9,7 @@
               v-for="resource in invSortedByID"
               :key="resource.id"
               style="margin-bottom: 0.75rem"
-              :class="{ 'is-core-tool': isCoreTool(resource.id) }"
+              :class="{ 'is-core-tool': getInvItemCap(resource.id) === 1 }"
             >
               <div class="level">
                 <div class="level-left">
@@ -25,10 +25,43 @@
                   <animated-counter
                     class="level-item"
                     :number="resource.amount"
-                    :cap="250"
+                    :cap="getInvItemCap(resource.id)"
                   ></animated-counter>
                 </div>
               </div>
+            </div>
+          </div>
+          <hr />
+          <div v-if="devEnvironment" id="dev-panel">
+            <h1 class="title has-text-centered is-5" style="color: red">
+              DEV GIVE ITEM
+            </h1>
+            <div class="dev-wrapper">
+              <b-field>
+                <b-select
+                  expanded
+                  placeholder="Select an Item"
+                  v-model="devAddItemID"
+                >
+                  <option
+                    v-for="item in gameItems"
+                    :key="item.id"
+                    :value="item.id"
+                  >
+                    > {{ item.displayName }}
+                  </option>
+                </b-select>
+              </b-field>
+              <b-field>
+                <b-input
+                  v-model="devAddItemAmount"
+                  number
+                  placeholder="50"
+                ></b-input>
+              </b-field>
+              <b-button @click="devAdd" type="is-primary" expanded>
+                Add items to inventory
+              </b-button>
             </div>
           </div>
         </div>
@@ -106,6 +139,13 @@
               </div>
             </section>
             <hr />
+            <section class="logs">
+              <h1 class="title is-5">DEV</h1>
+              <div class="wrapper">
+                {{ player }}
+              </div>
+            </section>
+            <hr />
           </div>
         </div>
         <div
@@ -129,11 +169,18 @@ export default {
     return {
       gametime: '',
       tick: 0,
+      devAddItemID: undefined,
+      devAddItemAmount: 1,
+      gameItems,
     };
   },
   components: { AnimatedCounter, vuescroll },
   computed: {
-    ...mapState(['inventory', 'workers', 'actionLog']),
+    devEnvironment() {
+      if (window.location.hostname === 'localhost') return true;
+      else return false;
+    },
+    ...mapState(['player', 'inventory', 'workers', 'actionLog']),
     gameTickrate() {
       return process.env.VUE_APP_TICKRATE;
     },
@@ -211,6 +258,23 @@ export default {
           2002: 20,
         },
       });
+    },
+    devAdd() {
+      const item = this.getGameItemByID(this.devAddItemID);
+      const amount = this.devAddItemAmount;
+      this.$store.commit('devPurchase', {
+        resource: item,
+        amount: amount,
+      });
+      console.log({
+        resource: item,
+        amount: amount,
+      });
+    },
+    getInvItemCap(id) {
+      for (const key in this.player.playerCaps) {
+        if (Number(key) === id) return this.player.playerCaps[key];
+      }
     },
     isCoreTool(id) {
       return this.coreTools.find((t) => t.id === id) ? true : false;
