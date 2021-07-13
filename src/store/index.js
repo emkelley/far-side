@@ -57,7 +57,10 @@ export default new Vuex.Store({
 
       // Add to action log
       if (isGameTick) return;
-      else state.actionLog.unshift(`+${amount} ${resource.displayName}`);
+      else {
+        if (state.actionLog.length == 5) state.actionLog.pop();
+        state.actionLog.unshift(`+${amount} ${resource.displayName}`);
+      }
     },
     devPurchase(state, { resource, amount = 1 }) {
       const index = state.inventory.findIndex((r) => r.id === resource.id);

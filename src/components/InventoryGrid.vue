@@ -10,7 +10,10 @@
         <div class="icon-box">
           <span>{{ resource.displayName.charAt(0) }}</span>
         </div>
-        <p>{{ resource.amount }}</p>
+        <p class="has-text-centered" style="font-size: 0.75rem; color: white">
+          {{ resource.amount }} <br />
+          {{ resource.displayName }}
+        </p>
       </div>
     </article>
   </div>
@@ -37,7 +40,7 @@ export default {
 <style lang="scss" scoped>
 #inventory-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
   grid-gap: 1rem;
   .grid-item {
     background: rgb(13, 0, 34);

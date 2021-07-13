@@ -38,7 +38,8 @@ export default {
 <style lang="scss" scoped>
 #home {
   min-height: 100vh;
-  background: #dce2ff;
+  background: #312977;
+  border-top: 4px solid #0d101b;
   padding: 0;
   margin: 0;
 }

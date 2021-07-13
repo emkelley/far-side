@@ -54,6 +54,8 @@
               </div>
             </div>
           </div>
+          <hr />
+          <InventoryGrid />
           <div v-if="inventory.length === 0" class="container is-fluid">
             <h1 class="title has-text-centered is-7" style="opacity: 0.5">
               gather some wood to get started
@@ -105,7 +107,12 @@
         <div class="inner-wrapper">
           <br />
           <section class="resources">
-            <h1 class="title is-5">Gather Resources</h1>
+            <h1 class="title is-5">
+              Gather Resources
+              <span style="font-size: 0.7rem"
+                >Get to the moon one resource at a time</span
+              >
+            </h1>
             <div v-if="earthResources" class="buttons">
               <button
                 v-for="resource in earthResources"
@@ -120,7 +127,12 @@
           </section>
           <hr />
           <section class="tools">
-            <h1 class="title is-5">Build Tools</h1>
+            <h1 class="title is-5">
+              Build Tools
+              <span style="font-size: 0.7rem">
+                to increase your crafting abilities
+              </span>
+            </h1>
             <div v-if="tools" class="buttons">
               <button
                 v-show="!alreadyOwns(1001)"
@@ -147,7 +159,12 @@
           </section>
           <hr />
           <section class="workers">
-            <h1 class="title is-5">Hire Workers</h1>
+            <h1 class="title is-5">
+              Hire Workers
+              <span style="font-size: 0.7rem">
+                Each Tick, automatically get wood and a chance for Stone
+              </span>
+            </h1>
             <div class="buttons">
               <button
                 v-for="worker in workers"
@@ -168,8 +185,8 @@
             </p>
           </section>
           <hr />
-          <section class="DEV">
-            <h1 class="title is-5">DEV</h1>
+          <section class="logs DEV">
+            <h1 class="title is-5">Logs - DEV</h1>
             <div class="wrapper">
               {{ player }}
             </div>
@@ -188,6 +205,7 @@
 </template>
 
 <script>
+import InventoryGrid from '@/components/InventoryGrid';
 import AnimatedCounter from '@/components/AnimatedNumber';
 import { gameItems } from '@/data/items';
 import { mapState } from 'vuex';
@@ -201,7 +219,7 @@ export default {
       gameItems,
     };
   },
-  components: { AnimatedCounter },
+  components: { AnimatedCounter, InventoryGrid },
   computed: {
     devEnvironment() {
       if (window.location.hostname === 'localhost') return true;
@@ -252,13 +270,23 @@ export default {
         this.tick++;
         const workerContribution = this.activeWorkers;
         const wood = this.getGameItemByID(2001);
-        if (!wood) return;
-        if (workerContribution > 0)
-          this.$store.commit('purchaseItem', {
-            resource: wood,
-            amount: workerContribution,
-            isGameTick: true,
-          });
+        const stone = this.getGameItemByID(2003);
+        if (wood) {
+          if (workerContribution > 0) {
+            this.$store.commit('purchaseItem', {
+              resource: wood,
+              amount: workerContribution,
+              isGameTick: true,
+            });
+            const playerFindsStone = Math.random() >= 0.9;
+            if (playerFindsStone)
+              this.$store.commit('purchaseItem', {
+                resource: stone,
+                amount: 1,
+                isGameTick: true,
+              });
+          }
+        }
       }, this.gameTickrate);
     },
     craft(resource, amount = 1) {
