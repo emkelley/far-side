@@ -6,12 +6,13 @@ export const gameItems = [
     type: 'tool',
     core: true,
     defaultCap: 1,
-    description: "Let's you build basic tools.",
+    description: 'A workbench that can be used to craft tools.',
     traderValue: 5,
     craftable: true,
     craftingCost: {
       2002: 25,
     },
+    requiredTool: undefined,
   },
   {
     id: 1002,
@@ -26,6 +27,7 @@ export const gameItems = [
     craftingCost: {
       2002: 25,
     },
+    requiredTool: undefined,
   },
   {
     id: 1011,
@@ -41,6 +43,7 @@ export const gameItems = [
     craftingCost: {
       2002: 5,
     },
+    requiredTool: undefined,
   },
   {
     id: 1012,
@@ -56,6 +59,7 @@ export const gameItems = [
     craftingCost: {
       2003: 5,
     },
+    requiredTool: undefined,
   },
   {
     id: 2001,
@@ -67,6 +71,7 @@ export const gameItems = [
     traderValue: 5,
     craftable: true,
     craftingCost: {},
+    requiredTool: undefined,
   },
   {
     id: 2002,
@@ -80,6 +85,7 @@ export const gameItems = [
     craftingCost: {
       2001: 15,
     },
+    requiredTool: undefined,
   },
   {
     id: 2003,
@@ -90,9 +96,8 @@ export const gameItems = [
     description: 'An extremely average hunk of stone.',
     traderValue: 25,
     craftable: true,
-    craftingCost: {
-      2001: 15,
-    },
+    craftingCost: {},
+    requiredTool: 1011,
   },
   {
     id: 4001,
@@ -106,6 +111,7 @@ export const gameItems = [
     craftingCost: {
       2002: 20,
     },
+    requiredTool: undefined,
   },
   {
     id: 9001,
@@ -130,6 +136,7 @@ export const gameItems = [
         amount: 50,
       },
     ],
+    requiredTool: undefined,
   },
   {
     id: 9002,
@@ -143,6 +150,7 @@ export const gameItems = [
     craftingCost: {
       2002: 10,
     },
+    requiredTool: undefined,
   },
 ];
 export const getItemByID = (id) => gameItems.find((x) => x.id === id);

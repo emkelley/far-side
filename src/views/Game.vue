@@ -1,209 +1,193 @@
 <template>
   <main>
-    <vuescroll>
-      <div id="game" class="grid">
-        <div class="inventory">
-          <div v-if="inventory" class="">
-            <h1 class="title has-text-centered is-5">Inventory</h1>
+    <div id="game" class="grid">
+      <div class="inventory">
+        <div v-if="inventory" class="">
+          <h1 class="title has-text-centered is-5">Inventory</h1>
+          <div
+            v-for="resource in invSortedByID"
+            :key="resource.id"
+            style="margin-bottom: 0.75rem"
+            :class="{ 'is-hidden': getInvItemCap(resource.id) === 1 }"
+          >
+            <div class="level">
+              <div class="level-left">
+                <strong class="level-item">{{ resource.displayName }}</strong>
+              </div>
+              <div class="level-right">
+                <span
+                  v-if="resource.id === 2001 && activeWorkers"
+                  class="current-output"
+                >
+                  +{{ activeWorkers }}/tick
+                </span>
+                <animated-counter
+                  class="level-item"
+                  :number="resource.amount"
+                  :cap="getInvItemCap(resource.id)"
+                ></animated-counter>
+              </div>
+            </div>
+          </div>
+          <div v-if="hasWorkbench">
+            <hr />
+            <h1 class="title has-text-centered is-5">Tools</h1>
             <div
-              v-for="resource in invSortedByID"
-              :key="resource.id"
+              v-for="tool in tools"
+              :key="tool.id"
               style="margin-bottom: 0.75rem"
-              :class="{ 'is-hidden': getInvItemCap(resource.id) === 1 }"
+              :class="{ 'is-hidden': !alreadyOwns(tool.id) }"
             >
               <div class="level">
                 <div class="level-left">
-                  <strong class="level-item">{{ resource.displayName }}</strong>
+                  <strong class="level-item">{{ tool.displayName }}</strong>
                 </div>
                 <div class="level-right">
                   <span
-                    v-if="resource.id === 2001 && activeWorkers"
+                    v-if="tool.id === 2001 && activeWorkers"
                     class="current-output"
                   >
                     +{{ activeWorkers }}/tick
                   </span>
-                  <animated-counter
-                    class="level-item"
-                    :number="resource.amount"
-                    :cap="getInvItemCap(resource.id)"
-                  ></animated-counter>
+                  <i class="fa-thin fa-check"></i>
                 </div>
               </div>
             </div>
-            <div v-if="hasWorkbench">
-              <hr />
-              <h1 class="title has-text-centered is-5">Tools</h1>
-              <div
-                v-for="tool in tools"
-                :key="tool.id"
-                style="margin-bottom: 0.75rem"
-                :class="{ 'is-hidden': !alreadyOwns(tool.id) }"
+          </div>
+          <div v-if="inventory.length === 0" class="container is-fluid">
+            <h1 class="title has-text-centered is-7" style="opacity: 0.5">
+              gather some wood to get started
+            </h1>
+          </div>
+        </div>
+        <div v-if="devEnvironment" id="dev-panel">
+          <hr />
+          <div class="dev-wrapper">
+            <h1 class="title has-text-centered is-5" style="color: DarkCyan">
+              Item Spawner
+            </h1>
+            <b-field>
+              <b-select
+                expanded
+                placeholder="Select an Item"
+                v-model="devAddItemID"
               >
-                <div class="level">
-                  <div class="level-left">
-                    <strong class="level-item">{{ tool.displayName }}</strong>
-                  </div>
-                  <div class="level-right">
-                    <span
-                      v-if="tool.id === 2001 && activeWorkers"
-                      class="current-output"
-                    >
-                      +{{ activeWorkers }}/tick
-                    </span>
-                    <i class="fa-thin fa-check"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div v-if="inventory.length === 0" class="container is-fluid">
-              <h1 class="title has-text-centered is-7" style="opacity: 0.5">
-                gather some wood to get started
-              </h1>
-            </div>
+                <option
+                  v-for="item in gameItems"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.id }} - {{ item.name }} -
+                  {{ item.displayName }}
+                </option>
+              </b-select>
+            </b-field>
+            <b-field>
+              <b-input
+                v-model="devAddItemAmount"
+                number
+                placeholder="50"
+              ></b-input>
+            </b-field>
+            <b-button @click="devAdd" type="is-primary" expanded>
+              Add item(s) to inventory
+            </b-button>
           </div>
-          <div v-if="devEnvironment" id="dev-panel">
-            <hr />
-            <div class="dev-wrapper">
-              <h1 class="title has-text-centered is-5" style="color: red">
-                Item Spawner
-              </h1>
-              <b-field>
-                <b-select
-                  expanded
-                  placeholder="Select an Item"
-                  v-model="devAddItemID"
-                >
-                  <option
-                    v-for="item in gameItems"
-                    :key="item.id"
-                    :value="item.id"
-                  >
-                    {{ item.id }} - {{ item.name }} -
-                    {{ item.displayName }}
-                  </option>
-                </b-select>
-              </b-field>
-              <b-field>
-                <b-input
-                  v-model="devAddItemAmount"
-                  number
-                  placeholder="50"
-                ></b-input>
-              </b-field>
-              <b-button @click="devAdd" type="is-primary" expanded>
-                Add item(s) to inventory
-              </b-button>
-            </div>
-          </div>
-        </div>
-        <div class="inventory-footer">
-          <p>
-            <span>FAR SIDE</span> a game by
-            <a href="https://emk.dev">Eric Kelley</a>
-          </p>
-        </div>
-        <div class="game-wrapper">
-          <div class="inner-wrapper">
-            <br />
-            <section class="resources">
-              <h1 class="title is-5">Gather Resources</h1>
-              <div v-if="earthResources" class="buttons">
-                <button
-                  v-for="resource in earthResources"
-                  :key="resource.id"
-                  class="button is-small is-primary"
-                  @click="craft(resource)"
-                  :disabled="haveEnoughFor(resource.id)"
-                >
-                  {{ resource.displayName }}
-                </button>
-              </div>
-            </section>
-            <hr />
-            <section class="tools">
-              <h1 class="title is-5">Build Tools</h1>
-              <div v-if="tools" class="buttons">
-                <button
-                  v-show="!alreadyOwns(1001)"
-                  class="button is-small is-primary"
-                  @click="craft(1001)"
-                  :disabled="haveEnoughFor(1001)"
-                >
-                  Build a Workbench
-                </button>
-                <div v-show="alreadyOwns(1001)">
-                  <b-tooltip
-                    v-for="tool in tools"
-                    :key="tool.id"
-                    :label="tool.displayName"
-                    :delay="1000"
-                    :class="{ 'is-hidden': tool.displayName === 'Workbench' }"
-                    style="margin-right: 0.5rem"
-                  >
-                    <b-button
-                      type="is-primary"
-                      size="is-small"
-                      :label="tool.displayName"
-                      @click="craft(tool)"
-                      :disabled="
-                        hasWorkbench &&
-                        haveEnoughFor(tool.id) &&
-                        !alreadyOwns(tool.id)
-                      "
-                    />
-                  </b-tooltip>
-                </div>
-              </div>
-            </section>
-            <hr />
-            <section class="workers">
-              <h1 class="title is-5">Hire Workers</h1>
-              <div class="buttons">
-                <button
-                  v-for="worker in workers"
-                  :key="worker.id"
-                  class="button is-small is-primary"
-                  @click="craft(worker)"
-                  :disabled="haveEnoughFor(worker.id)"
-                >
-                  {{ worker.displayName }}
-                </button>
-              </div>
-            </section>
-            <hr />
-            <section class="logs">
-              <h1 class="title is-5">Logs</h1>
-              <div class="wrapper">
-                <vuescroll>
-                  <p v-for="(action, index) in actionLog" :key="index">
-                    {{ action }}
-                  </p>
-                </vuescroll>
-              </div>
-            </section>
-            <hr />
-            <section class="logs">
-              <h1 class="title is-5">DEV</h1>
-              <div class="wrapper">
-                {{ player }}
-              </div>
-            </section>
-            <hr />
-          </div>
-        </div>
-        <div
-          class="game-footer"
-          style="font-family: 'IBM Plex Mono'; color: MediumSlateBlue"
-        >
-          <p>Game Tickrate: {{ gameTickrate }}ms - Current Tick: {{ tick }}</p>
         </div>
       </div>
-    </vuescroll>
+      <div class="inventory-footer">
+        <p>
+          <span>FAR SIDE</span> a game by
+          <a href="https://emk.dev">Eric Kelley</a>
+        </p>
+      </div>
+      <div class="game-wrapper">
+        <div class="inner-wrapper">
+          <br />
+          <section class="resources">
+            <h1 class="title is-5">Gather Resources</h1>
+            <div v-if="earthResources" class="buttons">
+              <button
+                v-for="resource in earthResources"
+                :key="resource.id"
+                class="button is-small is-primary"
+                @click="craft(resource)"
+                :disabled="haveEnoughFor(resource.id)"
+              >
+                {{ resource.displayName }}
+              </button>
+            </div>
+          </section>
+          <hr />
+          <section class="tools">
+            <h1 class="title is-5">Build Tools</h1>
+            <div v-if="tools" class="buttons">
+              <button
+                v-show="!alreadyOwns(1001)"
+                class="button is-small is-primary"
+                @click="craft(1001)"
+                :disabled="haveEnoughFor(1001)"
+              >
+                Build a Workbench
+              </button>
+              <div v-show="alreadyOwns(1001)">
+                <b-button
+                  v-for="tool in tools"
+                  :key="tool.id"
+                  v-show="!alreadyOwns(tool.id)"
+                  class="button is-small is-primary"
+                  @click="craft(tool.id)"
+                  :disabled="haveEnoughFor(tool.id)"
+                  :label="tool.displayName"
+                >
+                  {{ tool.displayName }}
+                </b-button>
+              </div>
+            </div>
+          </section>
+          <hr />
+          <section class="workers">
+            <h1 class="title is-5">Hire Workers</h1>
+            <div class="buttons">
+              <button
+                v-for="worker in workers"
+                :key="worker.id"
+                class="button is-small is-primary"
+                @click="craft(worker)"
+                :disabled="haveEnoughFor(worker.id)"
+              >
+                {{ worker.displayName }}
+              </button>
+            </div>
+          </section>
+          <hr />
+          <section class="logs">
+            <h1 class="title is-5">Logs</h1>
+            <p v-for="(action, index) in actionLog" :key="index">
+              {{ action }}
+            </p>
+          </section>
+          <hr />
+          <section class="DEV">
+            <h1 class="title is-5">DEV</h1>
+            <div class="wrapper">
+              {{ player }}
+            </div>
+          </section>
+          <hr />
+        </div>
+      </div>
+      <div
+        class="game-footer"
+        style="font-family: 'IBM Plex Mono'; color: MediumSlateBlue"
+      >
+        <p>Game Tickrate: {{ gameTickrate }}ms - Current Tick: {{ tick }}</p>
+      </div>
+    </div>
   </main>
 </template>
 
 <script>
-import vuescroll from 'vuescroll';
 import AnimatedCounter from '@/components/AnimatedNumber';
 import { gameItems } from '@/data/items';
 import { mapState } from 'vuex';
@@ -213,11 +197,11 @@ export default {
       gametime: '',
       tick: 0,
       devAddItemID: 2001,
-      devAddItemAmount: 1,
+      devAddItemAmount: 100,
       gameItems,
     };
   },
-  components: { AnimatedCounter, vuescroll },
+  components: { AnimatedCounter },
   computed: {
     devEnvironment() {
       if (window.location.hostname === 'localhost') return true;
@@ -298,7 +282,8 @@ export default {
       const reqItemAmt = Object.values(craftingCost)[0];
       const hasInInv = this.getInvItemAmountByID(Number(reqItemID));
       if (hasInInv < reqItemAmt) return true;
-      else return false;
+      else if (this.playerHasRequiredTool(itemID)) return false;
+      else return true;
     },
     hire(id) {
       this.$store.commit('updateInventory', {
@@ -321,6 +306,12 @@ export default {
         resource: item,
         amount: amount,
       });
+    },
+    playerHasRequiredTool(id) {
+      const item = this.getGameItemByID(id);
+      const hasInInv = this.hasItemInInventory(item.requiredTool);
+      if (item.requiredTool === undefined) return true;
+      return hasInInv;
     },
     alreadyOwns(id) {
       const item = this.getInvItemByID(id);
@@ -358,6 +349,10 @@ export default {
     },
     getInvItemByID(id) {
       return this.inventory.find((e) => e.id === id);
+    },
+    hasItemInInventory(id) {
+      const item = this.getInvItemByID(id);
+      return item ? true : false;
     },
     getInvItemAmountByID(id) {
       let count = this.getInvItemByID(id);
@@ -487,7 +482,7 @@ article {
 }
 #dev-panel {
   padding: 0.5rem;
-  opacity: 0.2;
+  opacity: 0.4;
   transition: opacity 0.5s;
   &:hover {
     opacity: 1;
