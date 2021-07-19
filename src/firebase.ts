@@ -1,7 +1,7 @@
 import { firebase } from '@firebase/app';
 import '@firebase/firestore';
 import '@firebase/auth';
-import router from './router';
+import router from './routes';
 
 const config = {
   apiKey: 'AIzaSyDFKDQiE5-7b40JDU9ttHxyh-gGofi7b-s',
@@ -35,7 +35,7 @@ const authWithEmail = ({ email, password }) => {
 
 const logUserOut = () => auth.signOut().then(() => router.replace('/login'));
 
-const sendPasswordResetEmail = (email) => {
+const sendPasswordResetEmail = (email: String) => {
   return new Promise((resolve, reject) => {
     auth
       .sendPasswordResetEmail(email)

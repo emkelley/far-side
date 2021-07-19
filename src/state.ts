@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { gameItems } from '../data/items';
+import { gameItems } from './data/items';
 Vue.use(Vuex);
 
 const generateDefaultResourceCaps = () => {
@@ -41,13 +41,15 @@ export default new Vuex.Store({
       // Add to inventory
       const index = state.inventory.findIndex((r) => r.id === resource.id);
       if (index > -1) state.inventory[index].amount += Number(amount);
-      else
+      else {
         state.inventory.push({
           id: resource.id,
           displayName: resource.displayName,
           amount: Number(amount),
           type: resource.type,
         });
+        state.inventory.sort((a, b) => a.id - b.id);
+      }
 
       // Apply build cost
       for (const [key, value] of Object.entries(resource.craftingCost)) {
@@ -74,8 +76,35 @@ export default new Vuex.Store({
         });
     },
   },
+  getters: {
+    gameItemsByType: () => (type) => {
+      return gameItems.filter((e) => e.type === type);
+    },
+    gameItemByID: () => (id) => {
+      return gameItems.find((e) => e.id === id);
+    },
+    gameItemByName: () => (name) => {
+      return gameItems.find((e) => e.name === name);
+    },
+    invItemsByType: (state) => (type) => {
+      return state.inventory.filter((e) => e.type === type);
+    },
+    invItemByID: (state) => (id) => {
+      return state.inventory.find((e) => e.id === id);
+    },
+    invItemAmtByID: (state) => (id) => {
+      const i = state.inventory.find((e) => e.id === id);
+      return i ? i.amount : 0;
+    },
+    invItemByName: (state) => (name) => {
+      return state.inventory.find((e) => e.name === name);
+    },
+    hasItem: (state) => (id) => {
+      return state.inventory.find((e) => e.id === id) ? true : false;
+    },
+  },
   state: {
-    actionLog: ['Game started'],
+    actionLog: ['Follow the distress call - fly to the moon.'],
     inventory: [],
     player: {
       displayName: '0NEGUY',

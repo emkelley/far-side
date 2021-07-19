@@ -205,10 +205,11 @@
 </template>
 
 <script>
+import { GameInstance } from '@/core/FarSide';
+import { gameItems } from '@/data/items';
+import { mapState, mapGetters } from 'vuex';
 import InventoryGrid from '@/components/InventoryGrid';
 import AnimatedCounter from '@/components/AnimatedNumber';
-import { gameItems } from '@/data/items';
-import { mapState } from 'vuex';
 export default {
   data() {
     return {
@@ -221,37 +222,34 @@ export default {
   },
   components: { AnimatedCounter, InventoryGrid },
   computed: {
-    devEnvironment() {
-      if (window.location.hostname === 'localhost') return true;
-      else return false;
-    },
     ...mapState(['player', 'inventory', 'workers', 'actionLog']),
+    ...mapGetters(['gameItemsByType', 'invItemsByType', 'invItemByID']),
     gameTickrate() {
       return process.env.VUE_APP_TICKRATE;
     },
     earthResources() {
-      return this.filterGameItemsByType('earth-resource');
+      return this.gameItemsByType('earth-resource');
     },
     coreTools() {
-      return this.filterGameItemsByType('core-tool');
+      return this.gameItemsByType('core-tool');
     },
     tools() {
-      return this.filterGameItemsByType('tool');
+      return this.gameItemsByType('tool');
     },
     invTools() {
-      return this.filterInvItemsByType('tool');
+      return this.invItemsByType('tool');
     },
     allTools() {
       return this.tools.concat(this.coreTools);
     },
     workers() {
-      return this.filterGameItemsByType('worker');
+      return this.gameItemsByType('worker');
     },
     machines() {
-      return this.filterGameItemsByType('machine');
+      return this.gameItemsByType('machine');
     },
     activeWorkers() {
-      const workerInInv = this.getInvItemByID(4001);
+      const workerInInv = this.invItemByID(4001);
       return workerInInv ? workerInInv.amount : 0;
     },
     hasWorkbench() {
@@ -260,9 +258,16 @@ export default {
     invSortedByID() {
       return this.sortInv();
     },
+    devEnvironment() {
+      if (window.location.hostname === 'localhost') return true;
+      else return false;
+    },
   },
   mounted() {
     this.gameTick();
+    let hero1 = new GameInstance('Eric', 2);
+    console.log(hero1);
+    console.log(hero1.greet());
   },
   methods: {
     gameTick() {
@@ -335,6 +340,13 @@ export default {
         amount: amount,
       });
     },
+
+    //!
+    //!
+    // ! FINISH MOVING ALL THIS SHIT TO THE VUEX STATE
+    //!
+    //!
+
     playerHasRequiredTool(id) {
       const item = this.getGameItemByID(id);
       const hasInInv = this.hasItemInInventory(item.requiredTool);
@@ -342,7 +354,7 @@ export default {
       return hasInInv;
     },
     alreadyOwns(id) {
-      const item = this.getInvItemByID(id);
+      const item = this.$store.getters.invItemByID(id);
       if (item) return true;
       else return false;
     },
@@ -357,17 +369,11 @@ export default {
     sortInv() {
       return this.inventory.sort((a, b) => a.id - b.id);
     },
-    filterGameItemsByType(type) {
-      return gameItems.filter((e) => e.type === type);
-    },
     getGameItemByName(name) {
       return gameItems.find((e) => e.name === name);
     },
     getGameItemByID(id) {
       return gameItems.find((e) => e.id === id);
-    },
-    filterInvItemsByType(type) {
-      return this.inventory.filter((e) => e.type === type);
     },
     getToolsInInventory() {
       return this.inventory.filter((e) => e.type === 'tool');
@@ -379,11 +385,11 @@ export default {
       return this.inventory.find((e) => e.id === id);
     },
     hasItemInInventory(id) {
-      const item = this.getInvItemByID(id);
+      const item = this.$store.getters.invItemByID(id);
       return item ? true : false;
     },
     getInvItemAmountByID(id) {
-      let count = this.getInvItemByID(id);
+      let count = this.$store.getters.invItemByID(id);
       return count ? count.amount : 0;
     },
     cancelGameTime() {
