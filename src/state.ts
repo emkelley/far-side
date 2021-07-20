@@ -99,8 +99,20 @@ export default new Vuex.Store({
     invItemByName: (state) => (name) => {
       return state.inventory.find((e) => e.name === name);
     },
-    hasItem: (state) => (id) => {
+    invItemCap: (state) => (id) => {
+      const playerCaps = state.player.playerCaps;
+      for (const key in playerCaps) {
+        if (Number(key) === id) return playerCaps[key];
+      }
+    },
+    playerHasItemByID: (state) => (id) => {
       return state.inventory.find((e) => e.id === id) ? true : false;
+    },
+    playerHasRequiredTool: (state) => (id) => {
+      const item = gameItems.find((e) => e.id === id);
+      if (item.requiredTool === undefined) return true;
+      const hasInInv = state.inventory.find((e) => e.id === item.requiredTool);
+      return hasInInv ? true : false;
     },
   },
   state: {

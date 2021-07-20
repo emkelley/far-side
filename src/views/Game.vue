@@ -5,10 +5,10 @@
         <div v-if="inventory" class="">
           <h1 class="title has-text-centered is-5">Inventory</h1>
           <div
-            v-for="resource in invSortedByID"
+            v-for="resource in inventory"
             :key="resource.id"
             style="margin-bottom: 0.75rem"
-            :class="{ 'is-hidden': getInvItemCap(resource.id) === 1 }"
+            :class="{ 'is-hidden': invItemCap(resource.id) === 1 }"
           >
             <div class="level">
               <div class="level-left">
@@ -24,7 +24,7 @@
                 <animated-counter
                   class="level-item"
                   :number="resource.amount"
-                  :cap="getInvItemCap(resource.id)"
+                  :cap="invItemCap(resource.id)"
                 ></animated-counter>
               </div>
             </div>
@@ -36,7 +36,7 @@
               v-for="tool in tools"
               :key="tool.id"
               style="margin-bottom: 0.75rem"
-              :class="{ 'is-hidden': !alreadyOwns(tool.id) }"
+              :class="{ 'is-hidden': !playerHasItemByID(tool.id) }"
             >
               <div class="level">
                 <div class="level-left">
@@ -118,7 +118,7 @@
                 v-for="resource in earthResources"
                 :key="resource.id"
                 class="button is-small is-primary"
-                @click="craft(resource)"
+                @click="purchaseResource(resource)"
                 :disabled="haveEnoughFor(resource.id)"
               >
                 {{ resource.displayName }}
@@ -135,20 +135,20 @@
             </h1>
             <div v-if="tools" class="buttons">
               <button
-                v-show="!alreadyOwns(1001)"
+                v-show="!playerHasItemByID(1001)"
                 class="button is-small is-primary"
-                @click="craft(1001)"
+                @click="purchaseResource(1001)"
                 :disabled="haveEnoughFor(1001)"
               >
                 Build a Workbench
               </button>
-              <div v-show="alreadyOwns(1001)">
+              <div v-show="playerHasItemByID(1001)">
                 <b-button
                   v-for="tool in tools"
                   :key="tool.id"
-                  v-show="!alreadyOwns(tool.id)"
+                  v-show="!playerHasItemByID(tool.id)"
                   class="button is-small is-primary"
-                  @click="craft(tool.id)"
+                  @click="purchaseResource(tool)"
                   :disabled="haveEnoughFor(tool.id)"
                   :label="tool.displayName"
                 >
@@ -170,7 +170,7 @@
                 v-for="worker in workers"
                 :key="worker.id"
                 class="button is-small is-primary"
-                @click="craft(worker)"
+                @click="purchaseResource(worker)"
                 :disabled="haveEnoughFor(worker.id)"
               >
                 {{ worker.displayName }}
@@ -194,18 +194,18 @@
           <hr />
         </div>
       </div>
-      <div
+      <footer
         class="game-footer"
         style="font-family: 'IBM Plex Mono'; color: MediumSlateBlue"
       >
         <p>Game Tickrate: {{ gameTickrate }}ms - Current Tick: {{ tick }}</p>
-      </div>
+      </footer>
     </div>
   </main>
 </template>
 
 <script>
-import { GameInstance } from '@/core/FarSide';
+// import { GameInstance } from '@/core/FarSide';
 import { gameItems } from '@/data/items';
 import { mapState, mapGetters } from 'vuex';
 import InventoryGrid from '@/components/InventoryGrid';
@@ -223,40 +223,35 @@ export default {
   components: { AnimatedCounter, InventoryGrid },
   computed: {
     ...mapState(['player', 'inventory', 'workers', 'actionLog']),
-    ...mapGetters(['gameItemsByType', 'invItemsByType', 'invItemByID']),
+    ...mapGetters([
+      'gameItemsByType',
+      'gameItemByID',
+      'invItemsByType',
+      'invItemAmtByID',
+      'invItemByName',
+      'invItemByID',
+      'invItemCap',
+      'playerHasRequiredTool',
+      'playerHasItemByID',
+    ]),
     gameTickrate() {
       return process.env.VUE_APP_TICKRATE;
     },
     earthResources() {
       return this.gameItemsByType('earth-resource');
     },
-    coreTools() {
-      return this.gameItemsByType('core-tool');
-    },
     tools() {
       return this.gameItemsByType('tool');
     },
-    invTools() {
-      return this.invItemsByType('tool');
-    },
-    allTools() {
-      return this.tools.concat(this.coreTools);
-    },
     workers() {
       return this.gameItemsByType('worker');
-    },
-    machines() {
-      return this.gameItemsByType('machine');
     },
     activeWorkers() {
       const workerInInv = this.invItemByID(4001);
       return workerInInv ? workerInInv.amount : 0;
     },
     hasWorkbench() {
-      return this.getInvItemByName('Workbench') ? true : false;
-    },
-    invSortedByID() {
-      return this.sortInv();
+      return this.invItemByName('Workbench') ? true : false;
     },
     devEnvironment() {
       if (window.location.hostname === 'localhost') return true;
@@ -265,22 +260,20 @@ export default {
   },
   mounted() {
     this.gameTick();
-    let hero1 = new GameInstance('Eric', 2);
-    console.log(hero1);
-    console.log(hero1.greet());
   },
   methods: {
     gameTick() {
       this.gametime = setInterval(() => {
         this.tick++;
-        const workerContribution = this.activeWorkers;
-        const wood = this.getGameItemByID(2001);
-        const stone = this.getGameItemByID(2003);
+        const workers = this.activeWorkers;
+        const wood = this.gameItemByID(2001);
+        const stone = this.gameItemByID(2003);
         if (wood) {
-          if (workerContribution > 0) {
+          if (workers > 0) {
+            this.purchaseResource(wood, workers);
             this.$store.commit('purchaseItem', {
               resource: wood,
-              amount: workerContribution,
+              amount: workers,
               isGameTick: true,
             });
             const playerFindsStone = Math.random() >= 0.9;
@@ -294,106 +287,35 @@ export default {
         }
       }, this.gameTickrate);
     },
-    craft(resource, amount = 1) {
-      if (typeof resource === 'number') {
-        resource = this.getGameItemByID(resource);
-        this.$store.commit('purchaseItem', {
-          resource: resource,
-          amount: amount,
-        });
-      } else {
-        this.$store.commit('purchaseItem', {
-          resource: resource,
-          amount: amount,
-        });
-      }
-    },
+    // TODO : Figure out a way to allow multiple items for crafting cost calculation
     haveEnoughFor(itemID) {
-      const { craftingCost } = this.getGameItemByID(itemID);
+      const { craftingCost } = this.gameItemByID(itemID);
       if (craftingCost === null) return false;
       const reqItemID = Object.keys(craftingCost)[0];
       const reqItemAmt = Object.values(craftingCost)[0];
-      const hasInInv = this.getInvItemAmountByID(Number(reqItemID));
+      const hasInInv = this.invItemAmtByID(Number(reqItemID));
       if (hasInInv < reqItemAmt) return true;
       else if (this.playerHasRequiredTool(itemID)) return false;
       else return true;
     },
-    hire(id) {
-      this.$store.commit('updateInventory', {
-        purchaseItem: id,
-        displayName: 'Worker',
-        amount: 1,
-        cost: {
-          2002: 20,
-        },
+    purchaseResource(resource, amount = 1, isGameTick = false) {
+      if (typeof resource === 'number') resource = this.gameItemByID(resource);
+      this.$store.commit('purchaseItem', {
+        resource: resource,
+        amount: amount,
+        isGameTick: isGameTick,
       });
     },
+    cancelGameTime() {
+      clearInterval(this.gametime);
+    },
     devAdd() {
-      const item = this.getGameItemByID(this.devAddItemID);
+      const item = this.gameItemByID(this.devAddItemID);
       const amount = this.devAddItemAmount;
       this.$store.commit('devPurchase', {
         resource: item,
         amount: amount,
       });
-      console.log({
-        resource: item,
-        amount: amount,
-      });
-    },
-
-    //!
-    //!
-    // ! FINISH MOVING ALL THIS SHIT TO THE VUEX STATE
-    //!
-    //!
-
-    playerHasRequiredTool(id) {
-      const item = this.getGameItemByID(id);
-      const hasInInv = this.hasItemInInventory(item.requiredTool);
-      if (item.requiredTool === undefined) return true;
-      return hasInInv;
-    },
-    alreadyOwns(id) {
-      const item = this.$store.getters.invItemByID(id);
-      if (item) return true;
-      else return false;
-    },
-    getInvItemCap(id) {
-      for (const key in this.player.playerCaps) {
-        if (Number(key) === id) return this.player.playerCaps[key];
-      }
-    },
-    isCoreTool(id) {
-      return this.coreTools.find((t) => t.id === id) ? true : false;
-    },
-    sortInv() {
-      return this.inventory.sort((a, b) => a.id - b.id);
-    },
-    getGameItemByName(name) {
-      return gameItems.find((e) => e.name === name);
-    },
-    getGameItemByID(id) {
-      return gameItems.find((e) => e.id === id);
-    },
-    getToolsInInventory() {
-      return this.inventory.filter((e) => e.type === 'tool');
-    },
-    getInvItemByName(name) {
-      return this.inventory.find((e) => e.displayName === name);
-    },
-    getInvItemByID(id) {
-      return this.inventory.find((e) => e.id === id);
-    },
-    hasItemInInventory(id) {
-      const item = this.$store.getters.invItemByID(id);
-      return item ? true : false;
-    },
-    getInvItemAmountByID(id) {
-      let count = this.$store.getters.invItemByID(id);
-      return count ? count.amount : 0;
-    },
-    cancelGameTime() {
-      clearInterval(this.gametime);
     },
   },
   destroyed() {

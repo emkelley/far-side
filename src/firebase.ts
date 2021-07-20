@@ -19,13 +19,13 @@ const config = {
 export const db = firebase.firestore();
 export const auth = firebase.auth();
 
-const authWithEmail = ({ email, password }) => {
+const authWithEmail = (creds: Object) => {
   return new Promise((resolve, reject) => {
     auth
       .setPersistence(firebase.auth.Auth.Persistence.SESSION)
       .then(() =>
         auth
-          .signInWithEmailAndPassword(email, password)
+          .signInWithEmailAndPassword(creds.email, creds.password)
           .then((user) => resolve(user))
           .catch((err) => reject(err))
       )
