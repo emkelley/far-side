@@ -3,7 +3,15 @@ import router from "./router";
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import "./style.css";
+import Vue3Toasity, { type ToastContainerOptions } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 
 const pinia = createPinia();
 
-createApp(App).use(router).use(pinia).mount("#app");
+createApp(App)
+  .use(router)
+  .use(pinia)
+  .use(Vue3Toasity, {
+    autoClose: 3000,
+  } as ToastContainerOptions)
+  .mount("#app");

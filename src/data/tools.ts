@@ -1,4 +1,4 @@
-export const items_tools = [
+const items_tools = [
   {
     id: 1,
     name: "Stone Axe",
@@ -303,3 +303,5 @@ export const items_tools = [
     ],
   },
 ];
+
+export default items_tools;

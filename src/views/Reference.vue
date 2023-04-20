@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Navbar from "@/components/Navbar.vue";
-import { items_tools } from "@/data/tools";
+import items_tools from "@/data/tools";
 import { Icon } from "@iconify/vue";
 </script>
 

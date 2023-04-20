@@ -1,10 +1,13 @@
-export const items_resources = [
+import { GameItem } from "@/types/GameItem";
+
+const items_resources: GameItem[] = [
   {
     id: 20001,
     name: "Stone",
     machine_name: "stone",
     description: "It's a rock.",
     image: "https://i.imgur.com/1ZQ3w9q.png",
+    icon: "ph:placeholder-duotone",
     required_bench_id: null,
     recipe: null,
   },
@@ -13,6 +16,7 @@ export const items_resources = [
     name: "Branch",
     machine_name: "branch",
     description: "A decent sized branch of wood.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: null,
@@ -22,6 +26,7 @@ export const items_resources = [
     name: "Wood Plank",
     machine_name: "wood_plank",
     description: "A refined piece of wood, perfect for construction.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: [
@@ -36,6 +41,7 @@ export const items_resources = [
     name: "Wood Log",
     machine_name: "wood_log",
     description: "A log of wood, useful for crafting and construction.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: null,
@@ -45,6 +51,7 @@ export const items_resources = [
     name: "Metal Ore",
     machine_name: "metal_ore",
     description: "Raw metal ore, ready to be smelted.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: null,
@@ -54,6 +61,7 @@ export const items_resources = [
     name: "Coal",
     machine_name: "coal",
     description: "Coal, a valuable fuel source.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: null,
@@ -63,6 +71,7 @@ export const items_resources = [
     name: "Copper Ore",
     machine_name: "copper_ore",
     description: "Raw copper ore, ready to be smelted.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: null,
@@ -72,6 +81,7 @@ export const items_resources = [
     name: "Iron Ingot",
     machine_name: "iron_ingot",
     description: "A bar of refined iron, used in crafting and construction.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: [
@@ -90,6 +100,7 @@ export const items_resources = [
     name: "Copper Ingot",
     machine_name: "copper_ingot",
     description: "A bar of refined copper, used in crafting and construction.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: [
@@ -108,6 +119,7 @@ export const items_resources = [
     name: "Silicon",
     machine_name: "silicon",
     description: "A valuable material used in the production of electronics.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: null,
@@ -117,6 +129,7 @@ export const items_resources = [
     name: "Glass",
     machine_name: "glass",
     description: "A transparent material made by melting sand.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: [
@@ -131,6 +144,7 @@ export const items_resources = [
     name: "Steel Ingot",
     machine_name: "steel_ingot",
     description: "A strong and durable material made from iron and carbon.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: [
@@ -150,8 +164,11 @@ export const items_resources = [
     machine_name: "sand",
     description:
       "Fine granular material, used in glassmaking and construction.",
+    icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,
     recipe: null,
   },
 ];
+
+export default items_resources;

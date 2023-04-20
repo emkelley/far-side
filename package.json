@@ -13,7 +13,8 @@
     "pinia": "^2.0.34",
     "sass": "^1.62.0",
     "vue": "^3.2.47",
-    "vue-router": "4"
+    "vue-router": "4",
+    "vue3-toastify": "^0.1.7"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

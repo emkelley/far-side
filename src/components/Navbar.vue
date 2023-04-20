@@ -8,6 +8,7 @@
     <div class="h-12 flex items-center px-8 gap-4 font-bold">
       <router-link to="/lore">Lore</router-link>
       <router-link to="/reference">Reference</router-link>
+      <router-link to="/play">Play</router-link>
     </div>
   </nav>
 </template>
