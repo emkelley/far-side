@@ -4,7 +4,7 @@ import { useGameStore } from "@/stores/game.store";
 import TopNav from "@/components/global/TopNav.vue";
 import BottomBar from "@/components/global/BottomBar.vue";
 import InventoryPanel from "@/components/global/InventoryPanel.vue";
-
+import Game from "@/components/Game.vue";
 const gameStore = useGameStore();
 
 const inventory_panel = ref<HTMLElement | null>(null);
@@ -27,7 +27,9 @@ const toggleInventorySize = () => {
 </script>
 
 <template>
-  <main class="flex flex-col w-screen h-screen max-h-screen overflow-y-scroll">
+  <main
+    class="flex flex-col w-screen h-screen max-h-screen overflow-y-scroll text-slate-100"
+  >
     <div id="uiTopBar" class="w-full">
       <TopNav />
     </div>
@@ -54,8 +56,13 @@ const toggleInventorySize = () => {
         </div>
         <InventoryPanel :expanded="inventory_expanded" />
       </div>
-      <div id="uiContentMain" class="flex-grow">middle</div>
-      <div id="uiContentRight" class="right w-48">right</div>
+      <div
+        id="uiContentMain"
+        class="flex-grow bg-slate-950 flex flex-col text-slate-200"
+      >
+        <Game />
+      </div>
+      <div id="uiContentRight" class="right w-48 bg-slate-800">right</div>
     </section>
     <!-- <div id="uiBottomPanel" class="w-full">bottombar</div> -->
     <div id="uiBottomBar" class="w-full">

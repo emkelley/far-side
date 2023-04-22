@@ -46,10 +46,13 @@ const handleItemClick = (item: string) => {
         </div>
       </div>
     </div>
+
     <div
       class="flex flex-col gap-4 grow h-96 overflow-y-scroll overflow-x-hidden"
     >
-      <h1 class="text-xl">All Items</h1>
+      <h1 class="text-xl font-black tracking-wider text-center text-slate-300">
+        DEV - All Items
+      </h1>
       <div
         ref="itemsGrid"
         class="grid gap-3"
