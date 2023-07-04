@@ -1,16 +1,11 @@
-<script setup lang="ts">
-import Navbar from "@/components/Navbar.vue";
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <Navbar />
-  <div
-    class="bg-gradient-to-b from-slate-100 via-slate-100 to-transparent text-slate-950 w-full px-6 py-8 min-h-[700px] flex flex-col gap-3"
-  >
-    <div class="container mx-auto px-4 py-16">
-      <h1 class="text-4xl font-bold mb-8">Far Side - Timeline of Events</h1>
+  <div class="w-full px-2 min-h-[700px] flex flex-col gap-3">
+    <div class="container mx-auto px-4 py-4">
+      <h1 class="text-4xl font-bold mb-8 text-center">Timeline of Events</h1>
 
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="bg-transparent text-white rounded-lg shadow-md p-0 mb-8">
         <h2 class="text-2xl font-semibold mb-2">The Fall (2205)</h2>
         <p class="text-lg">
           In the year 2205, Earth is devastated by a catastrophic event known as
@@ -23,7 +18,7 @@ import Navbar from "@/components/Navbar.vue";
         </p>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="bg-transparent text-white rounded-lg shadow-md p-0 mb-8">
         <h2 class="text-2xl font-semibold mb-2">A New Hope: The Moon (2210)</h2>
         <p class="text-lg">
           The Moon, once a symbol of hope, now represents humanity's last chance
@@ -37,7 +32,7 @@ import Navbar from "@/components/Navbar.vue";
         </p>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="bg-transparent text-white rounded-lg shadow-md p-0 mb-8">
         <h2 class="text-2xl font-semibold mb-2">
           The Age of Reconstruction (2215-2230)
         </h2>
@@ -53,7 +48,7 @@ import Navbar from "@/components/Navbar.vue";
         </p>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div class="bg-transparent text-white rounded-lg shadow-md p-0 mb-8">
         <h2 class="text-2xl font-semibold mb-2">
           The Journey to the Stars (2230-2250)
         </h2>

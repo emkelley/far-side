@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import items_resources from "@/data/resources";
 import items_tools from "@/data/tools";
-import { useGameStore } from "@/stores/game.store";
+import { usePlayerStore } from "@/stores/player.store";
 import { Icon } from "@iconify/vue";
 import { storeToRefs } from "pinia";
 import { toast } from "vue3-toastify";
 
-const gameStore = useGameStore();
-const { inventory } = storeToRefs(gameStore);
+const playerStore = usePlayerStore();
+const { inventory } = storeToRefs(playerStore);
 
 const props = defineProps<{
   expanded: boolean;
@@ -19,7 +19,7 @@ const handleItemClick = (item: string) => {
 </script>
 
 <template>
-  <section class="p-4 bg-slate-800 text-slate-50 flex flex-col gap-4 h-full">
+  <section class="flex flex-col gap-4 h-full">
     <div class="flex flex-col gap-4">
       <h1 class="text-xl">Inventory</h1>
       <div

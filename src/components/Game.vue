@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { attemptMining } from "@/core/farside";
 import { ref, reactive, onMounted } from "vue";
 
 const clicks = ref(0);
@@ -32,6 +33,10 @@ const buyShopItem = (index: number) => {
   }
 };
 
+const beginMiningAdventure = () => {
+  console.log("beginning mining adventure");
+  console.log(attemptMining(0, true));
+};
 onMounted(() => {
   setInterval(() => {
     clicks.value += shopItems[0].count * shopItems[0].pointsPerSecond;
@@ -41,15 +46,23 @@ onMounted(() => {
 
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold mb-4">Incremental Game</h1>
+    <h1 class="text-4xl font-bold mb-4">Actions</h1>
     <div class="bg-gray-900 p-4 rounded-lg">
       <div class="text-2xl mb-4">Clicks: {{ clicks }}</div>
-      <button
-        @click="incrementClicks"
-        class="bg-blue-500 text-white px-4 py-2 rounded-lg"
-      >
-        Click me!
-      </button>
+      <div class="flex gap-3 items-center font-bold">
+        <button
+          @click="incrementClicks"
+          class="bg-blue-500 text-white px-4 py-2 rounded-lg"
+        >
+          Mine
+        </button>
+        <button
+          @click="beginMiningAdventure"
+          class="bg-blue-700 text-white px-4 py-2 rounded-lg"
+        >
+          Go on a Mining Expedition
+        </button>
+      </div>
     </div>
     <div class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Upgrades</h2>
@@ -57,7 +70,7 @@ onMounted(() => {
         <button
           @click="buyUpgrade(index)"
           :disabled="clicks < upgrade.cost"
-          class="bg-green-500 text-white px-4 py-2 rounded-lg"
+          class="bg-emerald-500 text-white px-4 py-2 rounded-lg"
         >
           Buy {{ upgrade.name }} ({{ upgrade.cost }} clicks)
         </button>
