@@ -1,4 +1,4 @@
-import { GameItem } from "@/types/GameItem";
+import { GameItem } from "@/types/Item";
 import { defineStore } from "pinia";
 import items_resources from "@/data/resources";
 import items_tools from "@/data/tools";

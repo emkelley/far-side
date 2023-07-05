@@ -12,6 +12,9 @@ export interface GameItem {
 export interface InventoryItem extends GameItem {
   quantity: number;
 }
+export interface UpgradeItem extends GameItem {
+  recipe: RecipeEntity[];
+}
 export interface RecipeEntity {
   id: number;
   quantity: number;

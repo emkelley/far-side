@@ -16,7 +16,7 @@
     "pinia": "^2.0.34",
     "sass": "^1.63.6",
     "vue": "^3.3.4",
-    "vue-router": "4",
+    "vue-router": "4.2.3app/challenges",
     "vue3-toastify": "^0.1.7"
   },
   "devDependencies": {

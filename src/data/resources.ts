@@ -1,4 +1,4 @@
-import { GameItem } from "@/types/GameItem";
+import { GameItem } from "@/types/Item";
 
 const items_resources: GameItem[] = [
   {
