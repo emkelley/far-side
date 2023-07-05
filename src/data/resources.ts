@@ -48,9 +48,9 @@ const items_resources: GameItem[] = [
   },
   {
     id: 20005,
-    name: "Metal Ore",
-    machine_name: "metal_ore",
-    description: "Raw metal ore, ready to be smelted.",
+    name: "Iron Ore",
+    machine_name: "iron_ore",
+    description: "Raw iron ore, ready to be smelted.",
     icon: "ph:placeholder-duotone",
     image: "https://i.imgur.com/1ZQ3w9q.png",
     required_bench_id: null,

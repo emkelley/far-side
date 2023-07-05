@@ -13,8 +13,6 @@ const emits = defineEmits(["toggle:lore"]);
       class="flex items-center px-8 gap-4 font-bold tracking-wide select-none"
     >
       <p @click="emits('toggle:lore')" class="hover:cursor-pointer">Lore</p>
-      <router-link to="/reference">Reference</router-link>
-      <router-link to="/play">Play</router-link>
     </div>
   </nav>
 </template>

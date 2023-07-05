@@ -16,7 +16,7 @@ function calculateMiningSuccess(difficulty: number): number {
   } = playerStore.stats;
 
   // Base success rate is 10%
-  let successRate = 10;
+  let successRate = 60;
 
   // Each stat contributes equally to the success rate (scaled by the level)
   let statContribution =

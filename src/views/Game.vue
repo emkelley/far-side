@@ -28,9 +28,7 @@ onMounted(() => {});
 </script>
 
 <template>
-  <main
-    class="flex flex-col w-screen h-screen max-h-screen overflow-y-scroll text-slate-100"
-  >
+  <main class="flex flex-col w-screen h-screen text-slate-100 overflow-hidden">
     <div id="uiTopBar" class="w-full">
       <TopNav @toggle:lore="lore_pane_visible = !lore_pane_visible" />
     </div>
@@ -58,7 +56,7 @@ onMounted(() => {});
             title="expand"
           ></i>
         </div>
-        <section class="flex flex-col gap-3">
+        <section class="flex flex-col gap-3 mb-12">
           <h2 class="text-lg">Party</h2>
         </section>
         <InventoryPanel :expanded="inventory_expanded" />

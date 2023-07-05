@@ -1,25 +1,16 @@
 <script setup lang="ts">
 import { attemptMining } from "@/core/farside";
 import { ref, reactive, onMounted } from "vue";
+import { toast } from "vue3-toastify";
+import Upgrades from "./Upgrades.vue";
+import { usePlayerStore } from "@/stores/player.store";
 
 const clicks = ref(0);
 let clickMultiplier = ref(1);
+const playerStore = usePlayerStore();
 
-const incrementClicks = () => {
-  clicks.value += clickMultiplier.value;
-};
-
-const upgrades = reactive([
-  { name: "Double clicks", cost: 10, multiplier: 2 },
-  { name: "Triple clicks", cost: 25, multiplier: 3 },
-  { name: "Quadruple clicks", cost: 50, multiplier: 4 },
-]);
-
-const buyUpgrade = (index: number) => {
-  if (clicks.value >= upgrades[index].cost) {
-    clicks.value -= upgrades[index].cost;
-    clickMultiplier.value = upgrades[index].multiplier;
-  }
+const handleMineClick = () => {
+  playerStore.mine(0);
 };
 
 const shopItems = reactive([
@@ -34,9 +25,17 @@ const buyShopItem = (index: number) => {
 };
 
 const beginMiningAdventure = () => {
-  console.log("beginning mining adventure");
-  console.log(attemptMining(0, true));
+  fireToast("beginning mining adventure");
+  setTimeout(() => {
+    fireToast(`Adventure complete!`);
+    fireToast(attemptMining(0, true) ? "Success!" : "Failure!");
+  }, 5000);
 };
+
+const fireToast = (text: string) => {
+  toast(text, { position: toast.POSITION.TOP_RIGHT });
+};
+
 onMounted(() => {
   setInterval(() => {
     clicks.value += shopItems[0].count * shopItems[0].pointsPerSecond;
@@ -51,7 +50,7 @@ onMounted(() => {
       <div class="text-2xl mb-4">Clicks: {{ clicks }}</div>
       <div class="flex gap-3 items-center font-bold">
         <button
-          @click="incrementClicks"
+          @click="handleMineClick"
           class="bg-blue-500 text-white px-4 py-2 rounded-lg"
         >
           Mine
@@ -64,18 +63,7 @@ onMounted(() => {
         </button>
       </div>
     </div>
-    <div class="mt-8">
-      <h2 class="text-2xl font-bold mb-4">Upgrades</h2>
-      <div v-for="(upgrade, index) in upgrades" :key="index" class="mb-4">
-        <button
-          @click="buyUpgrade(index)"
-          :disabled="clicks < upgrade.cost"
-          class="bg-emerald-500 text-white px-4 py-2 rounded-lg"
-        >
-          Buy {{ upgrade.name }} ({{ upgrade.cost }} clicks)
-        </button>
-      </div>
-    </div>
+    <Upgrades />
     <div class="mt-8">
       <h2 class="text-2xl font-bold mb-4">Shop</h2>
       <div v-for="(item, index) in shopItems" :key="index" class="mb-4">

@@ -9,7 +9,9 @@ export interface GameItem {
   required_bench_id?: number | null;
   recipe?: RecipeEntity[] | null;
 }
-
+export interface InventoryItem extends GameItem {
+  quantity: number;
+}
 export interface RecipeEntity {
   id: number;
   quantity: number;
