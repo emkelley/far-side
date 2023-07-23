@@ -1,5 +1,7 @@
 import { usePlayerStore } from "@/stores/player.store";
-import { PlayerStats } from "@/types/Player";
+import { useGameStore } from "@/stores/game.store";
+import { storeToRefs } from "pinia";
+import { genEventId } from "@/utils";
 
 function calculateMiningSuccess(difficulty: number): number {
   const playerStore = usePlayerStore();
@@ -19,7 +21,7 @@ function calculateMiningSuccess(difficulty: number): number {
   let successRate = 60;
 
   // Each stat contributes equally to the success rate (scaled by the level)
-  let statContribution =
+  const statContribution =
     (strength +
       agility +
       vigor +
@@ -43,6 +45,7 @@ function calculateMiningSuccess(difficulty: number): number {
 }
 
 export const attemptMining = (difficulty: number, debug?: boolean): boolean => {
+  const { event_log } = storeToRefs(useGameStore());
   // Calculate success rate
   const successRate = calculateMiningSuccess(difficulty);
 
@@ -55,8 +58,20 @@ export const attemptMining = (difficulty: number, debug?: boolean): boolean => {
   }
   // Determine if mining is successful
   if (roll <= successRate) {
+    event_log.value.unshift({
+      id: genEventId(),
+      type: "success",
+      event: "Mining was successful.",
+      timestamp: Date.now(),
+    });
     return true; // Mining is successful
   } else {
+    event_log.value.unshift({
+      id: genEventId(),
+      type: "failure",
+      event: "Mining failed.",
+      timestamp: Date.now(),
+    });
     return false; // Mining is unsuccessful
   }
 };

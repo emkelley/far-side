@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import items_resources from "@/data/resources";
-import items_tools from "@/data/tools";
 import { useItemsStore } from "@/stores/items.store";
 import { usePlayerStore } from "@/stores/player.store";
 import { Icon } from "@iconify/vue";
 import { storeToRefs } from "pinia";
 import { toast } from "vue3-toastify";
+import DevItemsPanel from "../dev/DevItemsPanel.vue";
+import EventsPanel from "./EventsPanel.vue";
 
 const playerStore = usePlayerStore();
 const itemsStore = useItemsStore();
@@ -43,30 +43,6 @@ const handleItemClick = (item: string) => {
         >
           <Icon v-if="item.icon" :icon="item.icon" width="24" />
           <p class="select-none">{{ item.name }} ({{ item.quantity }})</p>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="flex flex-col gap-4 grow h-96 overflow-y-scroll overflow-x-hidden"
-    >
-      <h1 class="text-xl font-black tracking-wider text-center text-slate-300">
-        DEV - All Items
-      </h1>
-      <div
-        ref="itemsGrid"
-        class="grid gap-3"
-        :class="props.expanded ? 'grid-cols-2' : 'grid-cols-1'"
-      >
-        <div
-          @click="handleItemClick(tool.name)"
-          v-for="tool in [...items_tools, ...items_resources]"
-          class="bg-slate-900 hover:bg-slate-700 transition-all rounded-lg shadow-md h-[65px] mb-1 flex items-center justify-center relative text-center gap-3 cursor-pointer"
-        >
-          <Icon v-if="tool.icon" :icon="tool.icon" width="24" />
-          <p class="select-none">
-            {{ tool.name }}
-          </p>
         </div>
       </div>
     </div>
